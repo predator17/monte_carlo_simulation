@@ -1,118 +1,93 @@
 # Portfolio Monte Carlo Simulator
 
-A high-performance Monte Carlo simulation tool for portfolio sustainability analysis with an interactive dark-mode GUI.
+A desktop simulator for exploring portfolio sustainability under configurable return, withdrawal, income and inflation assumptions.
+
+The default scenario simulates **10,000 paths over 23 years (276 months)**, producing 2.76 million monthly balance values. The application combines a Numba-compiled simulation core with a PySide6 interface, Matplotlib charts and on-demand table loading.
+
+This is an educational and scenario-analysis tool. It is **not investment advice or a forecasting guarantee**.
 
 ## Features
 
-- **High-Performance Simulation**: Numba JIT compilation for 100-1000x speedup
-- **Interactive GUI**: PySide6-based dark theme interface
-- **Real-time Visualization**: PyQtGraph GPU-accelerated charts
-- **Lazy Loading Table**: Display 2.76M+ data points efficiently
-- **Monthly Granularity**: 276 data points per path (23 years × 12 months)
+- Monthly Monte Carlo simulation with Numba JIT compilation and parallel path processing
+- Configurable stock/cash allocation, withdrawals, annual income, inflation and time horizon
+- Final-balance distribution, percentile tracks and success-rate summaries
+- Matplotlib charts embedded in a PySide6 desktop interface
+- Monthly details loaded in batches rather than rendering the full result set at once
+- Polars DataFrame and LazyFrame conversion for further analysis
+- Optional random seed for repeatable runs
 
-## Installation
+## Model boundaries
 
-### Using Conda
+- Monthly stock returns are sampled independently from a normal distribution. This is a simplified model, not a complete market model.
+- Taxes, transaction costs, changing correlations, sequential rebalancing rules and asset-specific behavior are outside the current scope.
+- `simulate_with_history` regenerates a stock-return series for visualization. Those draws are not the same random draws used inside the simulation core.
+- JIT speed depends on the hardware, path count and whether compilation time is included. The repository does not claim a universal acceleration multiplier.
+- A display and working Qt desktop environment are required to run the GUI. The application is not a headless web service.
+
+## Requirements
+
+- Python 3.14
+- `uv` for the recommended setup
+- A desktop environment supported by PySide6
+
+The original project configuration targets Python 3.14. Other Python versions are not covered by the current dependency configuration and have not been verified.
+
+## Install and run
 
 ```bash
-# Create conda environment
-conda create -n portfolio-sim python=3.12 -y
-conda activate portfolio-sim
-
-# Install dependencies
-pip install -r requirements.txt
+uv sync --extra dev
+uv run python run.py
 ```
 
-### Using Virtualenv (Alternative)
+The package also exposes a launcher:
 
 ```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
-
-# Install dependencies
-pip install -r requirements.txt
+uv run portfolio-simulator
 ```
 
-## Running the Application
-
-From the project root:
+For a pip-based workflow:
 
 ```bash
+python -m pip install -e ".[dev]"
 python run.py
 ```
 
-Or using the module:
+## Tests and quality checks
 
 ```bash
-python -m src
+uv run pytest
+uv run ruff check .
+uv run mypy src
 ```
 
-## Project Structure
+The test suite covers configuration, simulation, result handling and GUI-related behavior. Tests that require a graphical environment may need a display or a Qt offscreen setup.
 
-```
-Monte_Carlo_Simulation/
-├── src/                          # Source code
-│   ├── config.py                 # Configuration classes
-│   ├── simulation.py             # Numba JIT simulation
-│   ├── results.py                # Result manager (Polars)
-│   ├── constants.py              # Colors, fonts, constants
-│   ├── theme.py                  # Dark mode styling
-│   ├── formatters.py             # Currency/number formatting
-│   ├── gui/                      # GUI components
-│   │   ├── main_window.py        # Main window
-│   │   ├── pages/                # Page widgets
-│   │   │   ├── input_page.py     # Input configuration
-│   │   │   └── results_page.py   # Results display
-│   │   ├── components/           # Reusable components
-│   │   │   ├── param_card.py     # Parameter card
-│   │   │   ├── summary_card.py   # Summary stat card
-│   │   │   ├── success_gauge.py  # Donut chart
-│   │   │   ├── advanced_panel.py # Expandable panel
-│   │   │   └── chart_tabs.py     # Chart container
-│   │   ├── models/               # Qt models
-│   │   └── workers/              # Worker threads
-│   │       └── simulation_worker.py
-│   └── utils/                    # Utilities
-├── doc/                          # Documentation
-│   └── implementation.md         # Implementation plan
-├── requirements.txt              # Production dependencies
-├── requirements-dev.txt          # Development dependencies
-├── run.py                        # Convenience launcher
-└── README.md                     # This file
+## Project structure
+
+```text
+src/
+  config.py             Validated simulation parameters
+  simulation.py         Numba-compiled path simulation
+  results.py            Result storage, statistics and lazy data access
+  gui/
+    main_window.py
+    pages/              Input and result pages
+    components/         Charts, cards and advanced controls
+    models/             On-demand monthly table model
+    workers/            Background simulation workers
+  utils/                Validation and shared helpers
+tests/                  Configuration, simulation, results and GUI tests
+doc/implementation.md  Original design and research notes
 ```
 
-## Dependencies
+## Reproducibility
 
-### Production
+`SimulationConfig` accepts an optional `random_seed`. Use it when comparing parameter sets or reporting an experiment. The underlying Numba function also supports cached, parallel execution, so timing should state the hardware and whether the first compilation is included.
 
-- **PySide6** >= 6.8.0: GUI framework (6.8+ for Python 3.13)
-- **pyqtgraph** >= 0.13.3: GPU-accelerated plotting
-- **numpy** >= 1.24.0: Numerical computing
-- **numba** >= 0.59.0: JIT compilation
-- **polars** >= 0.20.0: Fast data analysis
-- **pydantic** >= 2.5.0: Configuration validation
+## Contributing
 
-### Development
-
-- **pytest** >= 8.0.0: Testing framework
-- **pytest-cov** >= 4.1.0: Coverage reporting
-- **pytest-qt** >= 4.3.0: GUI testing
-- **pytest-benchmark** >= 4.0.0: Performance testing
-- **ruff** >= 0.6.0: Linting
-- **mypy** >= 1.9.0: Type checking
-- **pre-commit** >= 3.6.0: Git hooks
+Read `CONTRIBUTING.md` before changing the simulation model, GUI or dependency setup. Reproducible tests and clear documentation of model assumptions are especially valuable.
 
 ## License
 
-MIT License
-
-## Documentation
-
-See `doc/implementation.md` for detailed implementation documentation including:
-- Research findings and best practices
-- GUI design mockups
-- Architecture specifications
-- Component documentation
-- Testing strategy
+Released under the MIT License. See `LICENSE`.
