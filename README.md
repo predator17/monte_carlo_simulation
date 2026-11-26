@@ -1,10 +1,21 @@
 # Portfolio Monte Carlo Simulator
 
-A desktop simulator for exploring portfolio sustainability under configurable return, withdrawal, income and inflation assumptions.
+**一笔资产，在持续支出下能撑多久？**
 
-The default scenario simulates **10,000 paths over 23 years (276 months)**, producing 2.76 million monthly balance values. The application combines a Numba-compiled simulation core with a PySide6 interface, Matplotlib charts and on-demand table loading.
+假设有 180 万本金，每月取出 1 万作为支出，每年再补入 1.3 万收入；90% 放在股票，10% 放在现金，计划维持 23 年。收益会波动，现金也有收益，通胀则让每月支出逐渐增加。
 
-This is an educational and scenario-analysis tool. It is **not investment advice or a forecasting guarantee**.
+这个项目把未来 23 年拆成 276 个月，每个月依次结算支出、收入、资产收益和通胀，再用不同的随机收益序列模拟 **10,000 种可能的未来**。每一种未来称为一条“路径”，全部路径合计产生 276 万条月度余额记录。
+
+它回答的不是“哪只股票会涨”，而是：**这套现金流规则，在不同未来下还能不能维持下去？**
+
+## 怎样读结果
+
+- **成功率**：到期时余额大于 0 的路径占比。它不是投资收益率，也不代表未来承诺。
+- **最终余额分布**：一万条路径最后分别剩下多少钱，而不只看一个平均数。
+- **百分位轨迹**：用 P10、P50、P90 观察较差、中间和较好的结果随时间怎样变化。
+- **月度明细**：逐月检查余额、支出、收入、现金流和变化，找出资产在哪一年开始承压。
+
+默认参数可以全部修改。这个工具用于教育和情景分析，**不是投资建议或收益预测**。
 
 ## Features
 
@@ -61,6 +72,8 @@ uv run mypy src
 ```
 
 The test suite covers configuration, simulation, result handling and GUI-related behavior. Tests that require a graphical environment may need a display or a Qt offscreen setup.
+
+During local verification, the full test run completed with **90 passed and 3 skipped**. The skipped integration tests require a full Qt event loop and are skipped in offscreen mode.
 
 ## Project structure
 
