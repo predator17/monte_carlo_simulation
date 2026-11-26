@@ -1,21 +1,21 @@
 # Portfolio Monte Carlo Simulator
 
-**一笔资产，在持续支出下能撑多久？**
+**Can your money last through years of ongoing withdrawals?**
 
-假设有 180 万本金，每月取出 1 万作为支出，每年再补入 1.3 万收入；90% 放在股票，10% 放在现金，计划维持 23 年。收益会波动，现金也有收益，通胀则让每月支出逐渐增加。
+Imagine starting with CNY 1.8 million, withdrawing CNY 10,000 every month, adding CNY 13,000 in annual income, allocating 90% to stocks and 10% to cash, and needing the portfolio to last 23 years. Stock returns vary, cash earns a return, and inflation gradually increases the monthly withdrawals.
 
-这个项目把未来 23 年拆成 276 个月，每个月依次结算支出、收入、资产收益和通胀，再用不同的随机收益序列模拟 **10,000 种可能的未来**。每一种未来称为一条“路径”，全部路径合计产生 276 万条月度余额记录。
+The simulator breaks those 23 years into 276 monthly settlements. It then uses different random return sequences to simulate **10,000 possible futures**. Each possible future is called a path, producing 2.76 million monthly balance records in total.
 
-它回答的不是“哪只股票会涨”，而是：**这套现金流规则，在不同未来下还能不能维持下去？**
+The question is not which stock will rise. It is: **can this cash-flow strategy survive across many different futures?**
 
-## 怎样读结果
+## How to read the results
 
-- **成功率**：到期时余额大于 0 的路径占比。它不是投资收益率，也不代表未来承诺。
-- **最终余额分布**：一万条路径最后分别剩下多少钱，而不只看一个平均数。
-- **百分位轨迹**：用 P10、P50、P90 观察较差、中间和较好的结果随时间怎样变化。
-- **月度明细**：逐月检查余额、支出、收入、现金流和变化，找出资产在哪一年开始承压。
+- **Success rate**: the percentage of paths that end with a positive balance. It is not an investment return or a promise about the future.
+- **Final-balance distribution**: how much money remains at the end of each path, rather than a single average outcome.
+- **Percentile tracks**: how P10, P50 and P90 outcomes change over time, making weaker, median and stronger scenarios visible.
+- **Monthly details**: balance, withdrawals, income, cash flow and monthly change, so you can see when the portfolio starts to come under pressure.
 
-默认参数可以全部修改。这个工具用于教育和情景分析，**不是投资建议或收益预测**。
+All default assumptions are editable. This is an educational scenario-analysis tool, **not investment advice or a forecasting guarantee**.
 
 ## Features
 
