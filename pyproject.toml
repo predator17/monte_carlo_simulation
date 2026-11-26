@@ -1,14 +1,14 @@
 [project]
 name = "portfolio-monte-carlo"
 version = "1.0.0"
-description = "Portfolio Monte Carlo Simulator - High-performance Monte Carlo simulation with interactive GUI"
+description = "Portfolio sustainability simulator with Numba, Polars and PySide6"
 readme = "README.md"
 requires-python = ">=3.14"
 license = { text = "MIT" }
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "Zhiyi Li", email = "zhiyi.li.work@gmail.com" }
 ]
-keywords = ["monte-carlo", "portfolio", "simulation", "finance", "investment"]
+keywords = ["monte-carlo", "portfolio", "simulation", "scenario-analysis"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: End Users/Desktop",
@@ -17,34 +17,21 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
 ]
-
 dependencies = [
-    # Core computation
     "numpy>=1.26.0",
     "numba>=0.60.0",
-
-    # Data handling
     "polars>=0.20.0",
-
-    # GUI framework (includes WebEngine for help dialog)
     "PySide6[WebEngine]>=6.6.0",
-
-    # Configuration and validation
     "pydantic>=2.7.0",
-
-    # Visualization
     "matplotlib>=3.8.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    # Testing
     "pytest>=8.0.0",
     "pytest-qt>=4.3.0",
     "pytest-cov>=5.0.0",
     "pytest-mock>=3.12.0",
-
-    # Code quality
     "ruff>=0.6.0",
     "mypy>=1.10.0",
     "pre-commit>=3.7.0",
@@ -54,10 +41,10 @@ dev = [
 portfolio-simulator = "src.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/portfolio-monte-carlo"
-Documentation = "https://github.com/yourusername/portfolio-monte-carlo/blob/main/README.md"
-Repository = "https://github.com/yourusername/portfolio-monte-carlo"
-Issues = "https://github.com/yourusername/portfolio-monte-carlo/issues"
+Homepage = "https://github.com/predator17/monte_carlo_simulation"
+Documentation = "https://github.com/predator17/monte_carlo_simulation/blob/master/README.md"
+Repository = "https://github.com/predator17/monte_carlo_simulation"
+Issues = "https://github.com/predator17/monte_carlo_simulation/issues"
 
 [build-system]
 requires = ["hatchling"]
@@ -66,15 +53,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
 
-# =============================================================================
-# Ruff Configuration
-# =============================================================================
 [tool.ruff]
 target-version = "py314"
 line-length = 79
 indent-width = 4
-
-# Directories to exclude from linting
 exclude = [
     ".git",
     ".venv",
@@ -88,28 +70,8 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# Enable pycodestyle (E, W), Pyflakes (F), isort (I), and more
-select = [
-    "E",      # pycodestyle errors
-    "W",      # pycodestyle warnings
-    "F",      # pyflakes
-    "I",      # isort
-    "N",      # pep8-naming
-    "UP",     # pyupgrade
-    "B",      # flake8-bugbear
-    "C4",     # flake8-comprehensions
-    "SIM",    # flake8-simplify
-    "RUF",    # ruff-specific rules
-]
-
-# Ignore specific rules that conflict with project style
-ignore = [
-    "E501",   # Line too long (handled by formatter)
-    "B008",   # Do not perform function calls in argument defaults
-    "N806",   # Variable in function should be lowercase (conflicts with _RNG_SEED)
-]
-
-# Allow autofix for all enabled rules
+select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501", "B008", "N806"]
 fixable = ["ALL"]
 unfixable = []
 
@@ -117,10 +79,7 @@ unfixable = []
 known-first-party = ["src"]
 
 [tool.ruff.lint.per-file-ignores]
-# Tests can have more relaxed rules
-"tests/**/*.py" = [
-    "S101",   # Allow assert statements
-]
+"tests/**/*.py" = ["S101"]
 
 [tool.ruff.format]
 quote-style = "single"
@@ -128,14 +87,11 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
-# =============================================================================
-# MyPy Configuration
-# =============================================================================
 [tool.mypy]
 python_version = "3.14"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = false  # Gradually enable this
+disallow_untyped_defs = false
 disallow_incomplete_defs = true
 check_untyped_defs = true
 strict_optional = true
@@ -145,26 +101,18 @@ warn_no_return = true
 strict_equality = true
 
 [[tool.mypy.overrides]]
-module = [
-    "numba.*",
-    "polars.*",
-    "matplotlib.*",
-    "PySide6.*",
-]
+module = ["numba.*", "polars.*", "matplotlib.*", "PySide6.*"]
 ignore_missing_imports = true
 
-# =============================================================================
-# Pytest Configuration
-# =============================================================================
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = [
-    "-ra",                    # Show summary of all test results
-    "--strict-markers",       # Error on unknown markers
-    "--strict-config",        # Error on invalid config
-    "--cov=src",              # Coverage for src directory
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
@@ -176,9 +124,6 @@ markers = [
 ]
 qt_api = "pyside6"
 
-# =============================================================================
-# Coverage Configuration
-# =============================================================================
 [tool.coverage.run]
 source = ["src"]
 omit = [
@@ -207,9 +152,6 @@ exclude_lines = [
 [tool.coverage.html]
 directory = "htmlcov"
 
-# =============================================================================
-# Bandit Configuration (Security Linting)
-# =============================================================================
 [tool.bandit]
 exclude_dirs = ["tests"]
-skips = ["B101"]  # Allow assert statements
+skips = ["B101"]
