@@ -1,8 +1,7 @@
 """Monte Carlo simulation engine with Numba JIT compilation.
 
-This module provides high-performance Monte Carlo simulation for
-portfolio sustainability analysis. The core simulation loop is
-JIT-compiled with Numba for 100-1000x speedup vs pure Python.
+The core loop is compiled to accelerate path simulation. Actual timing
+depends on hardware, path count and whether initial compilation is included.
 
 The simulation follows this monthly sequence:
 1. Withdrawal at start of month
@@ -20,7 +19,6 @@ from typing import Tuple
 from src.config import MonthlyParams
 
 
-# Set random seed for reproducibility
 _RNG_SEED: int | None = None
 
 
@@ -52,13 +50,10 @@ def _simulate_paths(
 ) -> npt.NDArray[np.float32]:
     """Simulate multiple portfolio paths using Numba JIT.
 
-    This is the core simulation loop, compiled to machine code for
-    maximum performance. Uses parallel processing for multiple paths.
-
     Args:
-        num_paths: Number of simulation paths.
+        num_paths: Number of paths to simulate.
         total_months: Number of months to simulate.
-        initial_balance: Starting portfolio balance.
+        initial_balance: Starting portfolio amount.
         stock_alloc: Fraction allocated to stocks (0-1).
         cash_alloc: Fraction allocated to cash (0-1).
         mu_stock: Monthly stock return mean.
@@ -71,40 +66,25 @@ def _simulate_paths(
     Returns:
         Array of shape (num_paths, total_months) containing end balances.
     """
-    # Pre-allocate output array
     balances = np.zeros((num_paths, total_months), dtype=np.float32)
 
-    # Simulate each path
     for path in prange(num_paths):
         balance = initial_balance
 
         for month in range(total_months):
-            # Calculate inflation-adjusted withdrawal
             withdrawal = withdrawal_base * ((1 + inflation) ** month)
-
-            # Step 1: Withdrawal at start of month
             balance -= withdrawal
-
-            # Step 2: Income at start of month
             balance += monthly_income
 
-            # Check if depleted
             if balance <= 0:
                 balances[path, month:] = 0
                 break
 
-            # Step 3: Rebalance to target allocation
             stock_amount = balance * stock_alloc
             cash_amount = balance * cash_alloc
-
-            # Step 4: Generate random stock return
             stock_return = np.random.normal(mu_stock, sigma_stock)
-
-            # Step 5: Apply returns (compound)
             stock_amount *= (1 + stock_return)
             cash_amount *= (1 + r_cash)
-
-            # Step 6: Record end-of-month balance
             balance = stock_amount + cash_amount
             balances[path, month] = max(balance, 0)
 
@@ -138,7 +118,7 @@ class SimulationEngine:
 
         Args:
             params: Monthly simulation parameters.
-            initial_balance: Starting portfolio balance.
+            initial_balance: Starting portfolio amount.
             num_paths: Number of paths to simulate.
 
         Returns:
@@ -171,7 +151,7 @@ class SimulationEngine:
 
         Args:
             params: Monthly simulation parameters.
-            initial_balance: Starting portfolio balance.
+            initial_balance: Starting portfolio amount.
             num_paths: Number of paths to simulate.
 
         Returns:
@@ -181,14 +161,11 @@ class SimulationEngine:
                 - stock_returns: Generated returns (num_paths, total_months)
         """
         balances = self.simulate(params, initial_balance, num_paths)
-
-        # Calculate withdrawal schedule
         months = np.arange(params.total_months)
         withdrawals = params.monthly_withdrawal_base * ((1 + params.inflation) ** months)
 
-        # Generate stock returns (for visualization)
-        # Note: These are re-generated for visualization; actual simulation
-        # uses different random draws internally
+        # These draws are for visualization only and are not the same random
+        # draws used inside the simulation core.
         stock_returns = np.random.normal(
             params.mu_stock,
             params.sigma_stock,
